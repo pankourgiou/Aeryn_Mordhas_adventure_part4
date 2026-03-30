@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aeryn Mordha – The Grey Path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-dim: #7a5f2a;
+    --gold-glow: rgba(201, 168, 76, 0.18);
+    --ink: #0a090f;
+    --parchment: #cfc9b8;
+    --parchment-dim: #8a8272;
+    --ash: #3a3540;
+    --mist: rgba(201, 168, 76, 0.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--ink);
+    color: var(--parchment);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 19px;
+    line-height: 1.95;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Vignette & noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(80, 50, 10, 0.18) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(30, 10, 50, 0.35) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Decorative side rules */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      linear-gradient(to right, rgba(201,168,76,0.07) 0px, transparent 2px),
+      linear-gradient(to left, rgba(201,168,76,0.07) 0px, transparent 2px);
+    background-size: 100% 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── Layout ─── */
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 80px 48px 120px;
+  }
+
+  /* ─── Cover ─── */
+  .cover {
+    text-align: center;
+    padding-bottom: 90px;
+    position: relative;
+  }
+
+  .cover-ornament {
+    display: block;
+    font-family: 'Cinzel', serif;
+    color: var(--gold-dim);
+    font-size: 0.75rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 0.2s;
+  }
+
+  .cover h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.8rem, 7vw, 5.2rem);
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-shadow:
+      0 0 60px rgba(201, 168, 76, 0.5),
+      0 0 120px rgba(201, 168, 76, 0.2);
+    opacity: 0;
+    animation: fadeUp 1.4s ease forwards 0.5s;
+    margin-bottom: 28px;
+  }
+
+  .cover-rule {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin: 32px 0;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 1s;
+  }
+
+  .cover-rule-thin {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cover-subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--parchment-dim);
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 0.9s;
+  }
+
+  .cover-diamond {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0 10px;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 1.4s;
+  }
+
+  .cover-diamond span {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 1.1rem;
+  }
+
+  .cover-diamond .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim));
+  }
+
+  .cover-diamond .line:last-child {
+    background: linear-gradient(to left, transparent, var(--gold-dim));
+  }
+
+  /* ─── Chapter ─── */
+  .chapter {
+    margin-top: 88px;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .chapter.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .chapter-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 38px;
+  }
+
+  .chapter-number {
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .chapter-rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--gold-dim), transparent);
+  }
+
+  .chapter h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    margin-bottom: 30px;
+    text-align: left;
+  }
+
+  .chapter p {
+    margin-bottom: 22px;
+    text-align: justify;
+    hyphens: auto;
+    color: var(--parchment);
+  }
+
+  .chapter p:first-of-type::first-letter {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 4.2rem;
+    line-height: 0.78;
+    float: left;
+    margin-right: 10px;
+    margin-top: 10px;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(201, 168, 76, 0.4);
+  }
+
+  /* Short paragraphs (single sentence / fragment) */
+  .chapter p.short {
+    font-style: italic;
+    color: var(--parchment-dim);
+    text-align: left;
+    padding-left: 32px;
+    position: relative;
+  }
+
+  .chapter p.short::before {
+    content: '—';
+    position: absolute;
+    left: 8px;
+    color: var(--gold-dim);
+  }
+
+  /* ─── Footer ─── */
+  .story-end {
+    margin-top: 100px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 1.5s ease forwards 0.3s;
+  }
+
+  .story-end .end-mark {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.4rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.25em;
+  }
+
+  .story-end .end-rule {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+    margin: 24px auto;
+  }
+
+  .story-end .end-text {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.35em;
+    color: var(--ash);
+    text-transform: uppercase;
+  }
+
+  /* ─── Scroll indicator ─── */
+  .scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(to right, var(--gold-dim), var(--gold));
+    z-index: 100;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px var(--gold-glow);
+  }
+
+  /* ─── Animations ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 600px) {
+    .page { padding: 60px 28px 80px; }
+    .cover h1 { font-size: 2.6rem; }
+    .chapter h2 { font-size: 1.1rem; }
+    body { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<main class="page">
+
+  <!-- Cover -->
+  <header class="cover">
+    <span class="cover-ornament">A Tale of Eltharion</span>
+    <h1>Aeryn<br>Mordha</h1>
+    <div class="cover-rule"></div>
+    <p class="cover-subtitle">The Grey Path of Eltharion</p>
+    <div class="cover-diamond">
+      <span class="line"></span>
+      <span>✦</span>
+      <span class="line"></span>
+    </div>
+  </header>
+
+  <!-- Chapters -->
+  <article>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter I</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>A Man Half Gone</h2>
+      <p>The land of Eltharion did not welcome him, nor did it reject him. It endured him—much like he endured himself. Aeryn Mordha walked beneath a sky that seemed perpetually undecided between storm and silence. His skin had taken on a pallid, almost dust-like hue, as though the world had begun reclaiming him long before death could.</p>
+      <p>Children who glimpsed him would fall quiet. Animals fled. Even the wind seemed to hesitate when brushing past his robes. There was power in him—immense, undeniable—but it carried a rot beneath its surface, a slow erosion of something once human.</p>
+      <p>He had not always been this way.</p>
+      <p>But memory, like mercy, was something he had long since learned to distrust.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter II</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>The Sickness That Prayed</h2>
+      <p>The village of Theryn Vale did not resist death—it pleaded with it. The sickness there was not merely of flesh but of spirit. People whispered to the night, begging either for salvation or an end swift enough to feel like kindness.</p>
+      <p>When Aeryn entered, the air shifted. Hope—thin, fragile, dangerous—spread among them.</p>
+      <p>They knelt before him.</p>
+      <p>That was always the beginning of the problem.</p>
+      <p>He examined the afflicted. Blackened veins. Breath like ash. Souls already loosening from their bodies. He knew this plague. It was not natural.</p>
+      <p>And he knew how to cure it.</p>
+      <p>The knowledge came with a cost he could already feel tightening around his chest.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter III</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>The Ritual Beneath Mercy</h2>
+      <p>He drew the circle in silence. No chants at first—only breath, steady and reluctant. The villagers watched, unaware that what he prepared was not healing, but exchange.</p>
+      <p>The spell demanded balance.</p>
+      <p>Life… for something else.</p>
+      <p>When he began to speak the words, the ground trembled faintly. Shadows stretched unnaturally. Aeryn felt the presence answering him—not benevolent, not cruel, but inevitable.</p>
+      <p>When the ritual ended, the sick began to recover almost immediately. Color returned. Lungs cleared. Cries of joy filled the air.</p>
+      <p>And Aeryn collapsed.</p>
+      <p>Not from exhaustion—but from loss.</p>
+      <p>Something within him had been taken. Not violently. Not even painfully.</p>
+      <p>Simply… removed.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter IV</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>Elyra</h2>
+      <p>She did not kneel.</p>
+      <p>Elyra stood apart from the others, her gaze steady, unafraid. Where others saw a savior or a monster, she saw something far more dangerous—truth.</p>
+      <p>"You didn't save them," she said quietly. "You traded."</p>
+      <p>Aeryn said nothing.</p>
+      <p>She approached anyway.</p>
+      <p>There was warmth in her presence, something painfully unfamiliar. She spoke to him not with reverence, but with understanding.</p>
+      <p>And that frightened him more than anything else.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter V</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>Devotion and Hunger</h2>
+      <p>Word spread quickly. Aeryn Mordha, the one who could defy death itself.</p>
+      <p>They came in numbers soon after—followers, believers, opportunists.</p>
+      <p>Among them was Kael.</p>
+      <p>Kael smiled too easily. Listened too closely. Believed too deeply.</p>
+      <p>Or so it seemed.</p>
+      <p>"Power should not be feared," Kael said one night by the fire. "Only wasted."</p>
+      <p>Aeryn recognized the tone. Not admiration.</p>
+      <p>Hunger.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter VI</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>Love as Weakness</h2>
+      <p>Elyra remained.</p>
+      <p>Days turned into something softer in her presence. She challenged him, questioned him, refused to let his choices exist without consequence.</p>
+      <p>And slowly, impossibly, Aeryn began to feel again.</p>
+      <p>Not hope.</p>
+      <p>But something adjacent to it.</p>
+      <p>Which made what followed inevitable.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter VII</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>The Theft</h2>
+      <p>It happened in silence.</p>
+      <p>Kael waited until Aeryn slept—if what he did could be called sleep. Using fragments of observed magic and stolen artifacts, he attempted to draw power directly from Aeryn himself.</p>
+      <p>The result was catastrophic.</p>
+      <p>Kael succeeded.</p>
+      <p>Partially.</p>
+      <p>Enough to become dangerous.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter VIII</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>Wrath</h2>
+      <p>When Aeryn confronted him, the world itself seemed to recoil.</p>
+      <p>Kael spoke of destiny. Of surpassing masters. Of necessary betrayal.</p>
+      <p>Aeryn did not argue.</p>
+      <p>The magic he used to end Kael was not quick.</p>
+      <p>Nor was it merciful.</p>
+      <p>And when it was done, there was no triumph—only silence.</p>
+      <p>And less of himself than before.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter IX</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>The Leaving</h2>
+      <p>Elyra watched it all.</p>
+      <p>She said nothing that night.</p>
+      <p>At dawn, she was gone.</p>
+      <p>No accusation. No farewell.</p>
+      <p>Which hurt more than either would have.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter X</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>A World That Breaks</h2>
+      <p>Without Elyra, the world felt sharper. Colder.</p>
+      <p>Aeryn wandered into conflicts not his own. Kingdoms built on lies. Rulers sustained by illusion.</p>
+      <p>And always, the same question returned:</p>
+      <p>Does the end justify the means?</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter XI</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>Freedom's Violence</h2>
+      <p>He broke a tyrant's spell that bound an entire city.</p>
+      <p>The people awoke.</p>
+      <p>And immediately turned on one another.</p>
+      <p>Truth, it seemed, was not salvation.</p>
+      <p>It was disruption.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter XII</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>The Return</h2>
+      <p>Elyra found him again.</p>
+      <p>Not because she forgave him.</p>
+      <p>But because she refused to abandon what little remained.</p>
+      <p>"You are still choosing," she said.</p>
+      <p>"Even now."</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter XIII</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>The Final Darkness</h2>
+      <p>The ancient force that rose in Eltharion was not evil.</p>
+      <p>It was older than such definitions.</p>
+      <p>It erased.</p>
+      <p>And only Aeryn stood between it and everything else.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter XIV</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>The Edge of Self</h2>
+      <p>The spell required everything.</p>
+      <p>Not death.</p>
+      <p>Worse.</p>
+      <p>Erasure of identity. Memory. Meaning.</p>
+      <p>To become a force, rather than a man.</p>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-header">
+        <span class="chapter-number">Chapter XV</span>
+        <span class="chapter-rule"></span>
+      </div>
+      <h2>The Grey Path</h2>
+      <p>Aeryn did not choose light.</p>
+      <p>He did not choose darkness.</p>
+      <p>He chose restraint.</p>
+      <p>He bound the force—not perfectly, not permanently—but enough.</p>
+      <p>He survived.</p>
+      <p>Changed. Hollowed. But still… choosing.</p>
+      <p>And so he walks still, through Eltharion, a living paradox.</p>
+      <p>A warning.</p>
+      <p>And a question that will never be answered.</p>
+    </div>
+
+  </article>
+
+  <!-- End mark -->
+  <footer class="story-end">
+    <div class="end-rule"></div>
+    <span class="end-mark">✦</span>
+    <div class="end-rule"></div>
+    <p class="end-text">Finis · The Grey Path of Eltharion</p>
+  </footer>
+
+</main>
+
+<script>
+  // Scroll progress bar
+  const bar = document.getElementById('scrollProgress');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (scrolled / total * 100) + '%';
+  }, { passive: true });
+
+  // Intersection observer for chapter fade-in
+  const chapters = document.querySelectorAll('.chapter');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  chapters.forEach(ch => observer.observe(ch));
+</script>
+</body>
+</html>
